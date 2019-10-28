@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+
+      code {
+        background-color: #eeeeee;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Close Browser Tests</h1>
+
+    <h2>Test 1 - Code using <code>Navigator.sendBeacon</code></h2>
+    <p>Steps to test</p>
+    <ol>
+      <li>Fill out <strong>Input 1</strong> with a string.</li>
+      <li>Click the <strong>Manual Test 1</strong> button.</li>
+      <li>Observe in the node console that payload was recived.</li>
+      <li>Fill out <strong>Input 1</strong> with a second value.</li>
+      <li>Close browser. Expect to see second value in node console.</li>
+    </ol>
+    <input id="t1Input" type="text" placeholder="Input 1">
+    <button id="t1Button">Manual Test 1</button>
+    <hr>
+
+
+    <h2>Test 2 - Code from Art using <code>window.onbeforeunload</code></h2>
+    <p>Steps to test</p>
+    <ol>
+      <li>Fill out <strong>Input 2</strong> with a string.</li>
+      <li>Click the <strong>Manual Test 2</strong> button.</li>
+      <li>Observe in the node console that payload was recived.</li>
+      <li>Fill out <strong>Input 2</strong> with a second value.</li>
+      <li>Close browser. Expect to see second value in node console.</li>
+    </ol>
+    <input id="t2Input" type="text" placeholder="Input 2">
+    <button id="t2Button">Manual Test 2</button>
+  </body>
+  <script>
+    // Test 1
+    const t1Input = document.querySelector('#t1Input');
+    const t1Button = document.querySelector('#t1Button');
+
+    function t1SendData() {
+      navigator.sendBeacon('/save-data', `Test 1 : ${t1Input.value}`);
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/unload_event
+    window.addEventListener('unload', t1SendData, false);
+
+    t1Button.addEventListener('click', () => {
+      console.log('== Test 1 clicked ==');
+      t1SendData();
+    });
+
+
+    // Test 2
+    const t2Input = document.querySelector('#t2Input');
+    const t2Button = document.querySelector('#t2Button');
+    const t2Xmlhttp = new XMLHttpRequest();
+
+    function t2SendData() {
+        t2Xmlhttp.open('POST', '/save-data', false);  // false makes it synchronous
+        t2Xmlhttp.setRequestHeader('Content-type', 'application/json');
+        t2Xmlhttp.send(`Test 2 : ${t2Input.value}`);
+    }
+
+    t2Button.addEventListener('click', () => {
+      console.log('== Test 2 clicked ==');
+      t2SendData();
+    });
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+    // https://stackoverflow.com/questions/14645011/window-onbeforeunload-and-window-onunload-is-not-working-in-firefox-safari-o
+    window.onbeforeunload = t2SendData;
+    // window.addEventListener('onbeforeunload', t2SendData, false);
+
+  </script>
+</html>
